@@ -1,23 +1,38 @@
+// ============================================================
+// NEXUS INPUT AREA — Director Directive Interface
+// Constraint Pins, Intent Chain Context, Transmission Gate
+// ============================================================
 import React, { useState, useRef, useEffect } from 'react';
-import { useNexusStore } from '../store/nexusStore';
-import { LEGAL_CONSTRAINTS } from '../lib/legalOntology';
+import type { LegalConstraint } from '../types/xpii';
 
-const InputArea: React.FC = () => {
+interface InputAreaProps {
+  onSubmit: (intent: string) => void;
+  disabled: boolean;
+  frozen: boolean;
+  activeConstraints: LegalConstraint[];
+  intentChainLength: number;
+}
+
+const InputArea: React.FC<InputAreaProps> = ({
+  onSubmit, disabled, frozen, activeConstraints, intentChainLength,
+}) => {
   const [value, setValue] = useState('');
-  const [showConstraints, setShowConstraints] = useState(false);
-  const frozen = useNexusStore(s => s.frozen);
-  const sendMessage = useNexusStore(s => s.sendMessage);
-  const toggleConstraint = useNexusStore(s => s.toggleConstraint);
-  const activeSession = useNexusStore(s => s.getActiveSession)();
+  const [focused, setFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSubmit = () => {
-    if (!value.trim() || frozen) return;
-    sendMessage(value.trim());
-    setValue('');
+  // Auto-resize textarea
+  useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
     }
+  }, [value]);
+
+  const handleSubmit = () => {
+    const trimmed = value.trim();
+    if (!trimmed || disabled || frozen) return;
+    onSubmit(trimmed);
+    setValue('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -27,120 +42,103 @@ const InputArea: React.FC = () => {
     }
   };
 
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value);
-    const el = e.target;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
-  };
-
-  const activeConstraintIds = activeSession?.constraints.filter(c => c.active).map(c => c.id) || [];
+  const activeCount = activeConstraints.filter(c => c.active).length;
+  const canSubmit = value.trim().length > 0 && !disabled && !frozen;
 
   return (
-    <footer className="border-t border-white/5 bg-[#0d0d10]/80 backdrop-blur-xl z-30 shrink-0">
-      {/* Constraint Selector */}
-      {showConstraints && (
-        <div className="px-8 pt-4 pb-2 border-b border-white/5">
-          <div className="text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">
-            Constraint Manifold (S_Law)
+    <footer className="px-6 py-4 bg-[#09090c]/90 backdrop-blur-xl border-t border-white/6 shrink-0 z-30">
+      {/* Context Row */}
+      <div className="max-w-4xl mx-auto mb-2.5 flex items-center gap-3">
+        {/* Intent Chain Counter */}
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/4 border border-white/8">
+          <div className="w-4 h-4 flex items-center justify-center">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {LEGAL_CONSTRAINTS.map(c => {
-              const isActive = activeConstraintIds.includes(c.id);
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => toggleConstraint(c.id)}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-medium border transition-all ${
-                    isActive
-                      ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300'
-                      : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10 hover:text-slate-400'
-                  }`}
-                >
-                  <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 ${
-                    isActive ? 'bg-indigo-400' : 'bg-slate-600'
-                  }`} />
-                  {c.label}
-                  {c.severity === 'critical' && (
-                    <span className="ml-1.5 text-red-400 text-[8px]">CRIT</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          <span className="text-[9px] font-mono text-slate-500">Chain:</span>
+          <span className="text-[9px] font-mono font-bold text-indigo-400">{intentChainLength}</span>
         </div>
-      )}
 
-      {/* Input */}
-      <div className="p-6">
-        <div className="max-w-4xl mx-auto relative">
-          <div className="flex items-end gap-2">
-            {/* Constraint Toggle */}
-            <button
-              onClick={() => setShowConstraints(!showConstraints)}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all border ${
-                showConstraints
-                  ? 'bg-indigo-600/30 border-indigo-500/50 text-indigo-300'
-                  : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10 hover:text-slate-400'
+        {/* Active Constraints */}
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/4 border border-white/8">
+          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"/>
+          <span className="text-[9px] font-mono text-slate-500">Constraints:</span>
+          <span className="text-[9px] font-mono font-bold text-indigo-400">{activeCount}</span>
+        </div>
+
+        {/* Active Constraint Pills */}
+        <div className="flex items-center gap-1 flex-1 overflow-hidden">
+          {activeConstraints.filter(c => c.active).slice(0, 3).map(c => (
+            <span key={c.id} className="text-[8px] px-1.5 py-0.5 rounded-full bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 font-medium whitespace-nowrap">
+              {c.label}
+            </span>
+          ))}
+          {activeCount > 3 && (
+            <span className="text-[8px] text-slate-600">+{activeCount - 3} more</span>
+          )}
+        </div>
+      </div>
+
+      {/* Input Box */}
+      <div className="max-w-4xl mx-auto relative">
+        <div
+          className={`relative rounded-2xl border transition-all duration-200 ${
+            frozen
+              ? 'border-red-500/30 bg-red-950/20'
+              : focused
+              ? 'border-indigo-500/50 bg-white/5 shadow-[0_0_0_4px_rgba(99,102,241,0.06)]'
+              : 'border-white/10 bg-white/4 hover:border-white/15'
+          }`}
+        >
+          <textarea
+            ref={textareaRef}
+            id="director-input"
+            rows={1}
+            value={value}
+            onChange={e => setValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            disabled={frozen || disabled}
+            placeholder={
+              frozen
+                ? '⚠ Session frozen — awaiting Director resolution…'
+                : 'Input operational directive… (↵ to transmit, Shift+↵ for newline)'
+            }
+            className="w-full bg-transparent px-4 pt-3.5 pb-3.5 pr-14 focus:outline-none text-slate-100 placeholder-slate-600 text-sm resize-none leading-relaxed max-h-40 disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+
+          {/* Transmit Button */}
+          <button
+            id="transmit-btn"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            aria-label="Transmit directive to Nexus"
+            title="Transmit directive (Enter)"
+            className={`absolute right-3 bottom-3 w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-lg active:scale-95
+              ${canSubmit
+                ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30 text-white'
+                : 'bg-white/5 text-slate-600 cursor-not-allowed'
               }`}
-              title="Toggle Constraints"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="4" y1="21" x2="4" y2="14" />
-                <line x1="4" y1="10" x2="4" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12" y2="3" />
-                <line x1="20" y1="21" x2="20" y2="16" />
-                <line x1="20" y1="12" x2="20" y2="3" />
-                <line x1="1" y1="14" x2="7" y2="14" />
-                <line x1="9" y1="8" x2="15" y2="8" />
-                <line x1="17" y1="16" x2="23" y2="16" />
-              </svg>
-            </button>
-
-            {/* Textarea */}
-            <div className="flex-1 relative group">
-              <textarea
-                ref={textareaRef}
-                rows={1}
-                value={value}
-                onChange={handleTextareaChange}
-                onKeyDown={handleKeyDown}
-                placeholder={frozen ? 'Session frozen — unfreeze to continue' : 'Input directive (e.g., Draft a motion under Rule 12b6)'}
-                disabled={frozen}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 pr-14 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all text-slate-100 placeholder-slate-600 resize-none disabled:opacity-40 disabled:cursor-not-allowed text-sm"
-                style={{ minHeight: '44px', maxHeight: '160px' }}
-              />
-              <button
-                onClick={handleSubmit}
-                disabled={!value.trim() || frozen}
-                aria-label="Submit directive"
-                className="absolute right-2 bottom-2 w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                  <line x1="22" y1="2" x2="11" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Status bar */}
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[9px] text-slate-600">
-              <span className="uppercase tracking-widest font-bold">
-                Alignment-Only Delta Active
-              </span>
-              <span>·</span>
-              <span>Δθ = P_Law · g</span>
-              <span>·</span>
-              <span>{activeConstraintIds.length} constraint{activeConstraintIds.length !== 1 ? 's' : ''} pinned</span>
-            </div>
-            <div className="text-[9px] text-slate-700 font-mono">
-              Shift+Enter for newline
-            </div>
-          </div>
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
         </div>
+      </div>
+
+      {/* Footer Note */}
+      <div className="mt-2.5 text-center">
+        <span className="text-[8px] text-slate-700 uppercase tracking-[0.2em] font-bold">
+          {frozen
+            ? '⚠ CIRCUIT BREAKER ACTIVE · HUMAN OVERSIGHT REQUIRED'
+            : 'OPERATOR DIRECTIVE PROTOCOL · EMPIRICAL VERIFICATION MANDATED · ALL DELTAS ALIGNMENT-ONLY'
+          }
+        </span>
       </div>
     </footer>
   );

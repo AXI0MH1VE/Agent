@@ -1,162 +1,132 @@
-// ============================================================
-// NEXUS SIDEBAR — Session Management + Director Console Nav
-// ============================================================
-import React, { useState } from 'react';
-import type { Session } from '../types/xpii';
+import React from 'react';
+import { useNexusStore } from '../store/nexusStore';
+import AlignmentMeter from './AlignmentMeter';
 
-interface SidebarProps {
-  sessions: Session[];
-  activeSessionId: string | null;
-  onSelectSession: (id: string) => void;
-  onNewSession: () => void;
-  systemStatus: 'nominal' | 'warning' | 'frozen';
-  averageEta: number;
-  totalTraces: number;
-}
-
-const statusConfig = {
-  nominal: { color: 'bg-emerald-500', label: 'NOMINAL', textColor: 'text-emerald-400' },
-  warning: { color: 'bg-amber-500',   label: 'WARNING',  textColor: 'text-amber-400'  },
-  frozen:  { color: 'bg-red-500',     label: 'FROZEN',   textColor: 'text-red-400'    },
-};
-
-const sessionStatusIcon = (status: Session['status']) => {
-  if (status === 'active')   return { dot: 'bg-emerald-400', label: 'Active'  };
-  if (status === 'frozen')   return { dot: 'bg-red-400',     label: 'Frozen'  };
-  return                            { dot: 'bg-slate-500',   label: 'Archived'};
-};
-
-const Sidebar: React.FC<SidebarProps> = ({
-  sessions, activeSessionId, onSelectSession, onNewSession,
-  systemStatus, averageEta, totalTraces,
-}) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const sc = statusConfig[systemStatus];
+const Sidebar: React.FC = () => {
+  const sessions = useNexusStore(s => s.sessions);
+  const activeSessionId = useNexusStore(s => s.activeSessionId);
+  const selectSession = useNexusStore(s => s.selectSession);
+  const createSession = useNexusStore(s => s.createSession);
+  const activeSession = useNexusStore(s => s.getActiveSession)();
+  const frozen = useNexusStore(s => s.frozen);
+  const director = useNexusStore(s => s.director);
 
   return (
-    <aside
-      className={`flex flex-col h-full bg-[#0d0d11] border-r border-white/8 transition-all duration-300 z-10 ${collapsed ? 'w-16' : 'w-72'}`}
-      style={{ boxShadow: '4px 0 24px rgba(0,0,0,0.4)' }}
-    >
+    <aside className="w-72 flex flex-col h-full border-r border-white/10 bg-[#0d0d10] shrink-0">
       {/* Header */}
-      <div className="p-4 border-b border-white/8 flex items-center justify-between shrink-0">
-        {!collapsed && (
+      <div className="p-4 border-b border-white/10">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-indigo-400">XPII Model X1</div>
-            <div className="text-[9px] text-slate-500 tracking-widest uppercase mt-0.5">Nexus Director Console</div>
+            <h2 className="text-xs font-bold tracking-widest uppercase text-indigo-400">
+              XPII Model X1
+            </h2>
+            <p className="text-[10px] text-slate-600 mt-0.5">Nexus Platform</p>
           </div>
-        )}
-        <button
-          id="sidebar-collapse-btn"
-          onClick={() => setCollapsed(c => !c)}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-indigo-400 hover:bg-white/5 transition-all"
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            {collapsed
-              ? <><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></>
-              : <><polyline points="15,18 9,12 15,6"/></>
-            }
-          </svg>
-        </button>
-      </div>
-
-      {/* System Status */}
-      {!collapsed && (
-        <div className="mx-3 mt-3 p-3 rounded-xl bg-white/3 border border-white/8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-slate-500">System Status</span>
-            <div className="flex items-center gap-1.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${sc.color} animate-pulse`}/>
-              <span className={`text-[9px] font-bold tracking-wider ${sc.textColor}`}>{sc.label}</span>
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-slate-500">Avg η Index</span>
-              <span className={`text-[10px] font-mono font-bold ${averageEta >= 0.75 ? 'text-emerald-400' : averageEta >= 0.4 ? 'text-amber-400' : 'text-red-400'}`}>
-                {(averageEta * 100).toFixed(1)}%
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-slate-500">Audit Traces</span>
-              <span className="text-[10px] font-mono font-bold text-slate-300">{totalTraces}</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${frozen ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
+            <span className="text-[9px] font-bold tracking-wider uppercase text-slate-500">
+              {frozen ? 'FROZEN' : 'ONLINE'}
+            </span>
           </div>
         </div>
-      )}
 
-      {/* New Session Button */}
-      <div className="p-3 shrink-0">
-        <button
-          id="new-session-btn"
-          onClick={onNewSession}
-          className={`w-full py-2.5 rounded-xl bg-indigo-600/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-600/25 hover:border-indigo-500/50 transition-all flex items-center gap-2 group ${collapsed ? 'justify-center px-2' : 'px-3'}`}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          {!collapsed && <span className="text-xs font-semibold">New Session</span>}
-        </button>
+        <div className="flex items-center gap-3 p-2 rounded-lg bg-white/5">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center text-xs font-bold text-indigo-300">
+            {director.name.slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <div className="text-xs font-medium text-slate-300">{director.name}</div>
+            <div className="text-[9px] uppercase tracking-wider text-slate-600">{director.role}</div>
+          </div>
+        </div>
       </div>
 
-      {/* Sessions List */}
-      <div className="flex-1 overflow-y-auto px-2 space-y-1 pb-4">
-        {!collapsed && (
-          <div className="px-2 mb-2">
-            <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-slate-600">Sessions</span>
+      {/* Alignment Meter */}
+      <AlignmentMeter />
+
+      {/* Sessions */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold tracking-widest uppercase text-slate-500">Sessions</span>
+          <button
+            onClick={() => createSession()}
+            className="w-6 h-6 rounded bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 text-xs hover:bg-indigo-600/30 transition-all flex items-center justify-center"
+            title="New Session"
+          >
+            +
+          </button>
+        </div>
+
+        {sessions.map(session => (
+          <button
+            key={session.id}
+            onClick={() => selectSession(session.id)}
+            className={`w-full p-3 rounded-lg text-left text-xs transition-all ${
+              session.id === activeSessionId
+                ? 'bg-white/10 text-slate-100 border border-white/10'
+                : 'text-slate-500 hover:bg-white/5 hover:text-slate-400'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-medium truncate">{session.name}</span>
+              {session.frozen && (
+                <span className="text-[8px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded font-bold">FROZEN</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-[9px] text-slate-600">
+              <span>{session.intentChain.length} entries</span>
+              <span>&middot;</span>
+              <span>&eta; {(session.averageEta * 100).toFixed(0)}%</span>
+            </div>
+          </button>
+        ))}
+
+        {/* Active Constraints */}
+        {activeSession && (
+          <div className="mt-4 space-y-2">
+            <span className="text-[10px] font-bold tracking-widest uppercase text-slate-500">Active Constraints</span>
+            {activeSession.constraints.map(c => (
+              <div
+                key={c.id}
+                className={`p-2 rounded-lg text-[10px] border transition-all ${
+                  c.active
+                    ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-300'
+                    : 'bg-white/5 border-white/5 text-slate-600'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium truncate">{c.label}</span>
+                  {c.pinnedAt && <span className="text-[8px] text-amber-400">PIN</span>}
+                </div>
+              </div>
+            ))}
           </div>
         )}
-        {sessions.map((session) => {
-          const si = sessionStatusIcon(session.status);
-          const isActive = session.id === activeSessionId;
-          return (
-            <button
-              key={session.id}
-              id={`session-${session.id}`}
-              onClick={() => onSelectSession(session.id)}
-              className={`w-full text-left rounded-xl transition-all duration-200 group
-                ${isActive
-                  ? 'bg-indigo-600/15 border border-indigo-500/30 text-slate-100'
-                  : 'border border-transparent text-slate-400 hover:bg-white/4 hover:text-slate-300'}
-                ${collapsed ? 'p-2 flex justify-center' : 'p-3'}
-              `}
-            >
-              {collapsed ? (
-                <div className={`w-2 h-2 rounded-full ${si.dot}`}/>
-              ) : (
-                <div className="flex items-start gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${si.dot}`}/>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium truncate">{session.name}</div>
-                    <div className="text-[9px] text-slate-500 mt-0.5 flex items-center gap-2">
-                      <span>{session.messageCount} msgs</span>
-                      <span>·</span>
-                      <span className={`${session.averageEta >= 0.75 ? 'text-emerald-500' : 'text-amber-500'}`}>
-                        η {(session.averageEta * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                  </div>
+
+        {/* Commitment Log */}
+        {activeSession && activeSession.commitments.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <span className="text-[10px] font-bold tracking-widest uppercase text-slate-500">Commitment Log</span>
+            {activeSession.commitments.map(c => (
+              <div
+                key={c.id}
+                className="p-2 rounded-lg text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
+              >
+                <div className="font-medium">&bull; {c.text}</div>
+                <div className="text-[9px] text-slate-600 mt-0.5">
+                  {new Date(c.establishedAt).toLocaleTimeString()}
                 </div>
-              )}
-            </button>
-          );
-        })}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-white/8 shrink-0">
-        {!collapsed && (
-          <div className="text-[9px] text-slate-600 font-mono tracking-wider text-center">
-            XPII X1 v1.0.0-Nexus<br/>
-            <span className="text-indigo-700">AkomaNtoso_3.0 · LegalXML</span>
-          </div>
-        )}
-        {collapsed && (
-          <div className="flex justify-center">
-            <div className="w-2 h-2 rounded-full bg-indigo-600/60"/>
-          </div>
-        )}
+      <div className="p-3 border-t border-white/10 text-center">
+        <span className="text-[9px] text-slate-600 uppercase tracking-widest font-bold">
+          XPII X1 Nexus v1.0.0 | Alignment-Only Delta
+        </span>
       </div>
     </aside>
   );

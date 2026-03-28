@@ -7,15 +7,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#0a0a0c",
-        panel: "rgba(20, 20, 25, 0.7)",
-        accent: "#6366f1", // Indigo-Dark accent
+        background: "#0a0a0e",
+        panel: "rgba(13, 13, 16, 0.9)",
+        accent: "#6366f1",
       },
       backdropBlur: {
         xs: '2px',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
     },
   },
