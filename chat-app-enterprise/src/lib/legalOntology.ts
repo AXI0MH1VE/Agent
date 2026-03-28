@@ -1,4 +1,4 @@
-import { LegalTerm, LegalConstraint } from '../types';
+import type { LegalTerm, LegalConstraint } from '../types';
 
 export const LEGAL_TERMS: LegalTerm[] = [
   { term: 'motion', category: 'procedure', weight: 1.0, ontologyRef: 'akoma-ntoso:procedure:motion' },

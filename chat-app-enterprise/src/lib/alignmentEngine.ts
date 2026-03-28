@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { JustificationTrace, AlignmentScore, GradientGateResult, Constraint } from '../types';
+import type { JustificationTrace, AlignmentScore, GradientGateResult, Constraint } from '../types';
 import { findMatchingTerms, checkConstraints, LEGAL_TERMS } from './legalOntology';
 
 function generateSignature(): string {
@@ -16,13 +16,13 @@ export function computeAlignmentScore(
   constraints: Constraint[]
 ): AlignmentScore {
   const activeConstraints = constraints.filter(c => c.active);
-  const constraintIds = activeConstraints.map(c => c.id);
 
   const matchingTerms = findMatchingTerms(content);
   const totalWeight = LEGAL_TERMS.reduce((sum, t) => sum + t.weight, 0);
   const matchedWeight = matchingTerms.reduce((sum, t) => sum + t.weight, 0);
   const legalOntology = totalWeight > 0 ? Math.min(1, (matchedWeight / totalWeight) * 5) : 0.95;
 
+  const constraintIds = activeConstraints.map(c => c.id);
   const { passed } = checkConstraints(content, constraintIds);
   const constraintCompliance = constraintIds.length > 0
     ? passed.length / constraintIds.length
@@ -47,7 +47,7 @@ export function computeAlignmentScore(
 
 export function simulateGradientGate(
   alignmentScore: AlignmentScore,
-  constraintIds: string[]
+  _constraintIds: string[]
 ): GradientGateResult {
   const rawMagnitude = 0.8 + Math.random() * 0.4;
   const harmonyIndex = alignmentScore.composite;
