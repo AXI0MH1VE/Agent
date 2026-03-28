@@ -11,7 +11,6 @@ const statusConfig: Record<AlignmentStatus, { color: string; bg: string; label: 
 
 const AlignmentMeter: React.FC = () => {
   const messages = useNexusStore(s => s.messages);
-  const frozen = useNexusStore(s => s.frozen);
   const getAlignmentStatus = useNexusStore(s => s.getAlignmentStatus);
 
   const status = getAlignmentStatus();
