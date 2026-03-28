@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNexusStore } from '../store/nexusStore';
-import { AlignmentStatus } from '../types';
+import type { AlignmentStatus } from '../types';
 
 const statusConfig: Record<AlignmentStatus, { color: string; bg: string; label: string; pulse: boolean }> = {
   aligned: { color: 'text-emerald-400', bg: 'bg-emerald-500', label: 'ALIGNED', pulse: false },

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import {
+import type {
   Session,
   Message,
   Constraint,
@@ -62,7 +62,7 @@ function createInitialSession(): Session {
   };
 }
 
-function generateProposerResponse(userInput: string, constraints: Constraint[]): string {
+function generateProposerResponse(_userInput: string, constraints: Constraint[]): string {
   const activeConstraints = constraints.filter(c => c.active);
   const constraintLabels = activeConstraints.map(c => c.label);
 
