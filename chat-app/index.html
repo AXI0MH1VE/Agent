@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Operational Standard Interface</title>
+    <meta name="description" content="A robust, premium chat interface for operator-model interactions.">
+    <!-- Citing typography best practices: Nielsen Norman Group on Legibility -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Sidebar -->
+        <aside id="sidebar" aria-label="Chat History and Settings">
+            <div class="sidebar-header">
+                <h2>Operator Interface</h2>
+            </div>
+            <nav id="chat-history" aria-label="Past conversations">
+                <!-- History items injected here -->
+                <button class="new-chat-btn" id="new-chat-btn">
+                    <span class="icon">+</span> New Standardization
+                </button>
+                <div class="history-list">
+                    <div class="history-item active">Current Session</div>
+                    <div class="history-item">Protocol Refinement</div>
+                    <div class="history-item">Data Validation</div>
+                    <div class="history-item">System Life Cycle (ISO 15288)</div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main id="chat-main" aria-label="Main Chat Region">
+            <header id="chat-header">
+                <h1>Actionable AI Interface Standard</h1>
+                <span class="status-indicator" role="status" aria-live="polite">
+                    <span class="status-dot"></span> Operational Subsystem Online
+                </span>
+            </header>
+
+            <section id="message-container" aria-live="polite">
+                <!-- Welcome Message -->
+                <div class="message system-message fade-in" role="log">
+                    <div class="avatar" aria-label="System Identity">sys</div>
+                    <div class="content">
+                        <p><strong>Operator-Centric Protocol Active.</strong></p>
+                        <p>This interface is designed to emulate advanced model architectures (e.g., GPT-based conversational models), establishing a rigorous environment for standardizing operational tasks. All interactions are optimized for reliability and evidence-based logic.</p>
+                        <p><em>How may the model assist in optimizing your workflow today?</em></p>
+                    </div>
+                </div>
+            </section>
+
+            <footer id="input-area">
+                <form id="chat-form">
+                    <div class="input-wrapper">
+                        <textarea id="chat-input" rows="1" placeholder="Provide operational directives..." required aria-label="Message input"></textarea>
+                        <button type="submit" id="send-btn" aria-label="Transmit directive">
+                            <!-- Feather Icons (MIT License) - Verifiable visual standard -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-disclaimer">
+                        Operations must align with the Actionable AI Protocol. Empirical verification is mandated. Humans remain in control.
+                    </div>
+                </form>
+            </footer>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
