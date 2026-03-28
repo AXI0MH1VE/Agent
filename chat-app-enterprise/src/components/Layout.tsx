@@ -6,7 +6,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background text-slate-100 font-sans">
+    <div className="flex h-screen w-full overflow-hidden bg-[#0a0a0e] text-slate-100 font-sans">
       {children}
     </div>
   );
