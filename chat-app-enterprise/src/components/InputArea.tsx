@@ -3,7 +3,7 @@
 // Constraint Pins, Intent Chain Context, Transmission Gate
 // ============================================================
 import React, { useState, useRef, useEffect } from 'react';
-import type { LegalConstraint } from '../types/xpii';
+import type { LegalConstraint } from '../types';
 
 interface InputAreaProps {
   onSubmit: (intent: string) => void;

@@ -3,7 +3,7 @@
 // JSON-LD Display, η Gauge, Gradient Gate Visualization
 // ============================================================
 import React, { useState } from 'react';
-import type { JustificationTrace, LegalConstraint, Commitment } from '../types/xpii';
+import type { JustificationTrace, LegalConstraint, Commitment } from '../types';
 
 interface JustificationPaneProps {
   latestTrace: JustificationTrace | null;
@@ -113,7 +113,7 @@ const ConstraintBadge: React.FC<{
   onToggle: () => void;
 }> = ({ constraint, onToggle }) => (
   <button
-    id={`constraint-${constraint.id}`}
+    id={`oracle-cnt-${constraint.id}`}
     onClick={onToggle}
     className={`flex items-center gap-2 w-full p-2 rounded-lg border text-left transition-all duration-200 ${
       constraint.active

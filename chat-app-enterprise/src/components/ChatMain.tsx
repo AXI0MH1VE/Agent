@@ -3,7 +3,7 @@
 // Intent Chain Display, Message Rendering, Escalation Alerts
 // ============================================================
 import React, { useRef, useEffect } from 'react';
-import type { Message, AlignmentStatus } from '../types/xpii';
+import type { Message, AlignmentStatus } from '../types';
 
 interface ChatMainProps {
   messages: Message[];

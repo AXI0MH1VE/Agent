@@ -29,7 +29,7 @@ import type {
   IntentChainEntry,
   JustificationTrace,
   AlignmentStatus,
-} from './types/xpii';
+} from './types';
 
 // ─── Default Legal Constraints (S_Law Invariants) ────────────────────────────
 

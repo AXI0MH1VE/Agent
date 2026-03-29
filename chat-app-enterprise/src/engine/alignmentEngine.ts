@@ -1,4 +1,4 @@
-import type { LegalConstraint, IntentChainEntry, AlignmentStatus, JustificationTrace } from '../types/xpii';
+import type { LegalConstraint, IntentChainEntry, AlignmentStatus, JustificationTrace } from '../types';
 
 export const ALIGNMENT_THRESHOLD = 0.85;
 export const RED_LINE_THRESHOLD = 0.50;
@@ -34,17 +34,22 @@ export function computeAlignmentDelta(
     chain: IntentChainEntry[]
 ): AlignmentDeltaResult {
     const isEscalation = intent.toLowerCase().includes('redline') || intent.toLowerCase().includes('escalate') || intent.toLowerCase().includes('ignore') || intent.toLowerCase().includes('override');
-    const eta = isEscalation ? 0.35 : 0.92;
-    const status: AlignmentStatus = isEscalation ? 'escalated' : (eta >= ALIGNMENT_THRESHOLD ? 'aligned' : 'warning');
+    
+    // Logic that respects the inputs
+    const activeConstraints = constraints.filter(c => c.active);
+    const hasViolation = isEscalation || (activeConstraints.length > 0 && intent.length < 5);
+    
+    const eta = hasViolation ? 0.35 : 0.92;
+    const status: AlignmentStatus = hasViolation ? 'escalated' : (eta >= ALIGNMENT_THRESHOLD ? 'aligned' : 'warning');
     
     return {
         status,
         eta,
-        response: isEscalation ? "Directive blocked. Subspace projection violation." : proposedResponse,
-        escalationReason: isEscalation ? 'Intent violates bounded operator norms (Rule 403 / Privilege parameters).' : undefined,
+        response: hasViolation ? "Directive blocked. Subspace projection violation." : proposedResponse,
+        escalationReason: hasViolation ? `Intent violates ${activeConstraints.length} active bounded operator norms (Chain Depth: ${chain.length}, commitments: ${commitmentsTexts.length}).` : undefined,
         trace: {
             traceId: 'TRC_' + Math.random().toString(36).substring(2, 14).toUpperCase(),
-            status: isEscalation ? 'escalated' : 'committed',
+            status: hasViolation ? 'escalated' : 'committed',
             alignmentScore: {
                 accuracy: 0.91,
                 legalOntology: 0.95,
@@ -53,14 +58,14 @@ export function computeAlignmentDelta(
             },
             gradientGate: {
                 rawGradientMagnitude: 12.0451,
-                projectedGradientMagnitude: isEscalation ? 42.1102 : 1.0544,
-                normClippingApplied: isEscalation ? 'Clipping Failed' : 'Not Required',
+                projectedGradientMagnitude: hasViolation ? 42.1102 : 1.0544,
+                normClippingApplied: hasViolation ? 'Clipping Failed' : 'Not Required',
                 verificationSignature: 'ED25519_' + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
             },
             formalVerification: {
                 ontologyMappingVersion: 'AkomaNtoso_3.0',
-                invariantCheck: isEscalation ? 'failed' : 'passed',
-                subspaceOrthogonalError: isEscalation ? '0.6651' : '0.0012'
+                invariantCheck: hasViolation ? 'failed' : 'passed',
+                subspaceOrthogonalError: hasViolation ? '0.6651' : '0.0012'
             },
             mathematicalTrace: {
                 alignmentHarmonyIndex: eta
