@@ -3,7 +3,7 @@
 // All JustificationTraces for the session, searchable + exportable
 // ============================================================
 import React, { useState } from 'react';
-import type { Message } from '../types/xpii';
+import type { Message } from '../types';
 
 interface AuditLogModalProps {
   messages: Message[];
