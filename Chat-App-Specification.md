@@ -47,7 +47,7 @@ This specification defines a robust desktop chat application designed to leverag
 
 ### 2.1 High-Level Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    Desktop Application                      │
 ├─────────────────────────────────────────────────────────────┤
@@ -341,7 +341,7 @@ paths:
 
 #### Rate Limiting Headers
 
-```
+```http
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
 X-RateLimit-Reset: 1640995200
@@ -986,7 +986,7 @@ describe('Chat API Integration', () => {
 
 #### Phase 1: Foundation (Weeks 1-4)
 
-**MVP Core Features**
+##### MVP Core Features
 
 - Basic chat interface with WebSocket communication
 - User authentication and authorization
@@ -1004,7 +1004,7 @@ describe('Chat API Integration', () => {
 
 #### Phase 2: Core Features (Weeks 5-8)
 
-**Enhanced Functionality**
+##### Enhanced Functionality
 
 - Advanced conversation management
 - Context handling and memory system
@@ -1022,7 +1022,7 @@ describe('Chat API Integration', () => {
 
 #### Phase 3: Enterprise Features (Weeks 9-12)
 
-**Production Readiness**
+##### Production Readiness
 
 - Multi-model integration
 - Advanced security features
@@ -1040,7 +1040,7 @@ describe('Chat API Integration', () => {
 
 #### Phase 4: Polish and Scale (Weeks 13-16)
 
-**Scale and Polish**
+##### Scale and Polish
 
 - Load testing and optimization
 - Advanced analytics
