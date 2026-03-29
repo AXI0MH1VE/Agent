@@ -247,6 +247,46 @@ pre.json-trace {
   100% { box-shadow: 0 0 0    rgba(239,68,68,0); }
 }
 
-.redline-flash {
-  animation: redlineFlash 0.8s ease-out;
+/* ─── Premium Shadow Utilities ───────────────────────────────── */
+
+.shadow-nexus-modal {
+  box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 40px rgba(99,102,241,0.08);
+}
+
+.shadow-panel-left {
+  box-shadow: -4px 0 24px rgba(0,0,0,0.4);
+}
+
+.shadow-escalation-msg {
+  box-shadow: 0 0 20px rgba(239,68,68,0.08);
+}
+
+/* ─── Dynamic Glow Utilities ─────────────────────────────────── */
+
+.glow-aligned {
+  filter: drop-shadow(0 0 6px rgba(16,185,129,0.38));
+}
+
+.glow-warning {
+  filter: drop-shadow(0 0 6px rgba(245,158,11,0.38));
+}
+
+.glow-redline {
+  filter: drop-shadow(0 0 6px rgba(239,68,68,0.38));
+}
+
+/* ─── Layout Utilities ───────────────────────────────────────── */
+
+.app-container {
+  min-height: 100vh;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  display: flex;
+  overflow: hidden;
+}
+
+/* ─── Typography overrides ────────────────────────────────────── */
+
+.font-inter {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }

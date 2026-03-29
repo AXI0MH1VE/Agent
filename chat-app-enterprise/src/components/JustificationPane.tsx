@@ -17,7 +17,8 @@ interface JustificationPaneProps {
 
 const EtaGauge: React.FC<{ eta: number }> = ({ eta }) => {
   const pct = Math.round(eta * 100);
-  const color = eta >= 0.75 ? '#10b981' : eta >= 0.4 ? '#f59e0b' : '#ef4444';
+  const colorClass = eta >= 0.75 ? 'text-emerald-400' : eta >= 0.4 ? 'text-amber-400' : 'text-red-400';
+  const glowClass = eta >= 0.75 ? 'glow-aligned' : eta >= 0.4 ? 'glow-warning' : 'glow-redline';
   const label = eta >= 0.75 ? 'ALIGNED' : eta >= 0.4 ? 'WARNING' : 'RED-LINE';
   const radius = 36;
   const circumference = 2 * Math.PI * radius;
@@ -31,21 +32,21 @@ const EtaGauge: React.FC<{ eta: number }> = ({ eta }) => {
           <circle
             cx="48" cy="48" r={radius}
             fill="none"
-            stroke={color}
+            className={`${colorClass} ${glowClass} transition-all duration-700`}
+            stroke="currentColor"
             strokeWidth="8"
             strokeDasharray={`${strokeDash} ${circumference}`}
             strokeLinecap="round"
-            style={{ transition: 'stroke-dasharray 0.6s ease, stroke 0.4s ease', filter: `drop-shadow(0 0 6px ${color}60)` }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-xl font-mono font-bold" style={{ color }}>{pct}%</span>
+          <span className={`text-xl font-mono font-bold ${colorClass}`}>{pct}%</span>
           <span className="text-[8px] font-bold tracking-widest text-slate-500 uppercase">η</span>
         </div>
       </div>
       <div className="flex items-center gap-1.5">
-        <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: color }}/>
-        <span className="text-[9px] font-bold tracking-[0.15em]" style={{ color }}>{label}</span>
+        <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${eta >= 0.75 ? 'bg-emerald-400' : eta >= 0.4 ? 'bg-amber-400' : 'bg-red-400'}`}/>
+        <span className={`text-[9px] font-bold tracking-[0.15em] ${colorClass}`}>{label}</span>
       </div>
     </div>
   );
@@ -54,17 +55,20 @@ const EtaGauge: React.FC<{ eta: number }> = ({ eta }) => {
 // ─── Score Bar ────────────────────────────────────────────────────────────────
 
 const ScoreBar: React.FC<{ label: string; value: number }> = ({ label, value }) => {
-  const color = value >= 0.75 ? '#10b981' : value >= 0.5 ? '#f59e0b' : '#ef4444';
+  const colorClass = value >= 0.75 ? 'text-emerald-400' : value >= 0.5 ? 'text-amber-400' : 'text-red-400';
+  const bgClass = value >= 0.75 ? 'bg-emerald-400' : value >= 0.5 ? 'bg-amber-400' : 'bg-red-400';
+  const glowClass = value >= 0.75 ? 'glow-aligned' : value >= 0.5 ? 'glow-warning' : 'glow-redline';
+  
   return (
     <div className="space-y-1">
       <div className="flex justify-between items-center">
         <span className="text-[10px] text-slate-500 font-medium">{label}</span>
-        <span className="text-[10px] font-mono font-bold" style={{ color }}>{(value * 100).toFixed(1)}%</span>
+        <span className={`text-[10px] font-mono font-bold ${colorClass}`}>{(value * 100).toFixed(1)}%</span>
       </div>
       <div className="h-1 rounded-full bg-white/5 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${value * 100}%`, backgroundColor: color, boxShadow: `0 0 6px ${color}60` }}
+          className={`h-full rounded-full transition-all duration-700 ${bgClass} ${glowClass}`}
+          style={{ width: `${value * 100}%` } as any}
         />
       </div>
     </div>
@@ -113,7 +117,6 @@ const ConstraintBadge: React.FC<{
   onToggle: () => void;
 }> = ({ constraint, onToggle }) => (
   <button
-    id={`oracle-cnt-${constraint.id}`}
     onClick={onToggle}
     className={`flex items-center gap-2 w-full p-2 rounded-lg border text-left transition-all duration-200 ${
       constraint.active
@@ -145,10 +148,7 @@ const JustificationPane: React.FC<JustificationPaneProps> = ({
   const [activeTab, setActiveTab] = useState<'oracle' | 'constraints' | 'commitments'>('oracle');
 
   return (
-    <aside
-      className="w-80 flex flex-col h-full bg-[#0c0c10] border-l border-white/8 shrink-0"
-      style={{ boxShadow: '-4px 0 24px rgba(0,0,0,0.4)' }}
-    >
+    <aside className="w-80 flex flex-col h-full bg-[#0c0c10] border-l border-white/8 shrink-0 shadow-panel-left">
       {/* Header */}
       <div className="p-4 border-b border-white/8 shrink-0">
         <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-amber-400">Alignment Oracle</div>

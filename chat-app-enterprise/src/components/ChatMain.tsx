@@ -49,8 +49,7 @@ const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
   if (isEscalation) {
     return (
       <div className="max-w-4xl mx-auto fade-in" id={`msg-${message.id}`}>
-        <div className="p-4 rounded-2xl bg-red-950/40 border border-red-500/40 space-y-2"
-          style={{ boxShadow: '0 0 20px rgba(239,68,68,0.08)' }}>
+        <div className="p-4 rounded-2xl bg-red-950/40 border border-red-500/40 space-y-2 shadow-escalation-msg">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-red-600/20 border border-red-500/40 flex items-center justify-center">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round">
@@ -103,8 +102,7 @@ const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
               <AlignmentBadge status={message.alignmentStatus} eta={message.eta} />
             )}
             <div
-              className="text-sm text-slate-200 leading-relaxed whitespace-pre-line"
-              style={{ fontFamily: "'Inter', sans-serif" }}
+              className="text-sm text-slate-200 leading-relaxed whitespace-pre-line font-inter"
               dangerouslySetInnerHTML={{
                 __html: message.content
                   .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-100 font-semibold">$1</strong>')

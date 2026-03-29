@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Session } from '../types/xpii';
+import type { Session } from '../types';
 
 interface SidebarProps {
   sessions: Session[];
@@ -56,7 +56,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           </span>
         </div>
         <div className="h-1 rounded-full bg-white/5 overflow-hidden">
-            <div className="h-full bg-emerald-500" style={{ width: `${Math.max(averageEta * 100, 3)}%` }} />
+            <div 
+              className="h-full bg-emerald-500 w-[var(--side-eta)]" 
+              style={{ '--side-eta': `${Math.max(averageEta * 100, 3)}%` } as React.CSSProperties} 
+            />
         </div>
         <div className="text-[9px] text-slate-600 mt-2 flex justify-between">
           <span>Traces Generated: {totalTraces}</span>

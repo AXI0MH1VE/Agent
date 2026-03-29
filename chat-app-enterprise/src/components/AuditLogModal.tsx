@@ -59,8 +59,7 @@ const AuditLogModal: React.FC<AuditLogModalProps> = ({ messages, sessionName, on
       role="dialog"
       aria-label="Audit Log"
     >
-      <div className="w-full max-w-3xl max-h-[80vh] flex flex-col rounded-2xl bg-[#0d0d11] border border-white/12 shadow-2xl overflow-hidden"
-        style={{ boxShadow: '0 40px 80px rgba(0,0,0,0.8), 0 0 40px rgba(99,102,241,0.08)' }}>
+      <div className="w-full max-w-3xl max-h-[80vh] flex flex-col rounded-2xl bg-[#0d0d11] border border-white/12 shadow-nexus-modal overflow-hidden">
 
         {/* Modal Header */}
         <div className="p-5 border-b border-white/8 flex items-center justify-between shrink-0">
