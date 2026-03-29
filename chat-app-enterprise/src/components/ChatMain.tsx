@@ -22,7 +22,7 @@ const AlignmentBadge: React.FC<{ status: AlignmentStatus; eta?: number }> = ({ s
     escalated: { bg: 'bg-red-500/10',     border: 'border-red-500/30',     text: 'text-red-400',     label: 'RED-LINE'  },
     frozen:    { bg: 'bg-slate-500/10',   border: 'border-slate-500/30',   text: 'text-slate-400',   label: 'FROZEN'    },
   };
-  const c = configs[status];
+  const c = configs[status as keyof typeof configs] || configs.aligned;
   return (
     <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full ${c.bg} border ${c.border}`}>
       <div className={`w-1.5 h-1.5 rounded-full ${

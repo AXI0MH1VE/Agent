@@ -1,15 +1,21 @@
 import React from 'react';
-import { useNexusStore } from '../store/nexusStore';
-import AlignmentMeter from './AlignmentMeter';
+import type { Session } from '../types/xpii';
 
-const Sidebar: React.FC = () => {
-  const sessions = useNexusStore(s => s.sessions);
-  const activeSessionId = useNexusStore(s => s.activeSessionId);
-  const selectSession = useNexusStore(s => s.selectSession);
-  const createSession = useNexusStore(s => s.createSession);
-  const activeSession = useNexusStore(s => s.getActiveSession)();
-  const frozen = useNexusStore(s => s.frozen);
-  const director = useNexusStore(s => s.director);
+interface SidebarProps {
+  sessions: Session[];
+  activeSessionId: string;
+  onSelectSession: (id: string) => void;
+  onNewSession: () => void;
+  systemStatus: 'nominal' | 'warning' | 'frozen';
+  averageEta: number;
+  totalTraces: number;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({
+  sessions, activeSessionId, onSelectSession, onNewSession, systemStatus, averageEta, totalTraces
+}) => {
+  const frozen = systemStatus === 'frozen';
+  const director = { name: "Director", role: "Operator" };
 
   return (
     <aside className="w-72 flex flex-col h-full border-r border-white/10 bg-[#0d0d10] shrink-0">
@@ -41,15 +47,28 @@ const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* Alignment Meter */}
-      <AlignmentMeter />
+      {/* Stats Meter */}
+      <div className="p-4 border-b border-white/10">
+        <div className="flex items-center justify-between text-[10px] tracking-widest uppercase font-bold text-slate-500 mb-2">
+          <span>Global η Average</span>
+          <span className={averageEta > 0.8 ? 'text-emerald-400' : 'text-amber-400'}>
+            {(averageEta * 100).toFixed(1)}%
+          </span>
+        </div>
+        <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+            <div className="h-full bg-emerald-500" style={{ width: `${Math.max(averageEta * 100, 3)}%` }} />
+        </div>
+        <div className="text-[9px] text-slate-600 mt-2 flex justify-between">
+          <span>Traces Generated: {totalTraces}</span>
+        </div>
+      </div>
 
       {/* Sessions */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-bold tracking-widest uppercase text-slate-500">Sessions</span>
           <button
-            onClick={() => createSession()}
+            onClick={onNewSession}
             className="w-6 h-6 rounded bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 text-xs hover:bg-indigo-600/30 transition-all flex items-center justify-center"
             title="New Session"
           >
@@ -60,7 +79,7 @@ const Sidebar: React.FC = () => {
         {sessions.map(session => (
           <button
             key={session.id}
-            onClick={() => selectSession(session.id)}
+            onClick={() => onSelectSession(session.id)}
             className={`w-full p-3 rounded-lg text-left text-xs transition-all ${
               session.id === activeSessionId
                 ? 'bg-white/10 text-slate-100 border border-white/10'
@@ -69,57 +88,17 @@ const Sidebar: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <span className="font-medium truncate">{session.name}</span>
-              {session.frozen && (
+              {session.status === 'frozen' && (
                 <span className="text-[8px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded font-bold">FROZEN</span>
               )}
             </div>
             <div className="flex items-center gap-2 mt-1 text-[9px] text-slate-600">
-              <span>{session.intentChain.length} entries</span>
+              <span>{session.messageCount} msg</span>
               <span>&middot;</span>
               <span>&eta; {(session.averageEta * 100).toFixed(0)}%</span>
             </div>
           </button>
         ))}
-
-        {/* Active Constraints */}
-        {activeSession && (
-          <div className="mt-4 space-y-2">
-            <span className="text-[10px] font-bold tracking-widest uppercase text-slate-500">Active Constraints</span>
-            {activeSession.constraints.map(c => (
-              <div
-                key={c.id}
-                className={`p-2 rounded-lg text-[10px] border transition-all ${
-                  c.active
-                    ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-300'
-                    : 'bg-white/5 border-white/5 text-slate-600'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium truncate">{c.label}</span>
-                  {c.pinnedAt && <span className="text-[8px] text-amber-400">PIN</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Commitment Log */}
-        {activeSession && activeSession.commitments.length > 0 && (
-          <div className="mt-4 space-y-2">
-            <span className="text-[10px] font-bold tracking-widest uppercase text-slate-500">Commitment Log</span>
-            {activeSession.commitments.map(c => (
-              <div
-                key={c.id}
-                className="p-2 rounded-lg text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
-              >
-                <div className="font-medium">&bull; {c.text}</div>
-                <div className="text-[9px] text-slate-600 mt-0.5">
-                  {new Date(c.establishedAt).toLocaleTimeString()}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Footer */}
